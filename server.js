@@ -8,9 +8,13 @@ const commentRoutes = require('./routes/commentRoutes');
 
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT|| 4000;
 
-app.use(cors());
+app.use(cors({
+    origin: ['https://newsdrop-frontend.vercel.app'],
+    methods: ['GET', 'POST', 'DELETE', 'PUT'],
+    credentials: true
+}));
 app.use(express.json());
 
 //function to create complex JOIN query
@@ -26,7 +30,7 @@ app.use('/api/auth', authRoutes);
 
 // API Route to get all featured 
 
-app.get('api/posts/featured', async (req, res) => {
+app.get('/api/posts/featured', async (req, res) => {
     try {
         const result = await db.query(
             'SELECT * FROM posts WHERE type = $1 ORDER BY created_at DESC',
