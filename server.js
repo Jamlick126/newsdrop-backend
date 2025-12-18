@@ -8,12 +8,16 @@ const commentRoutes = require('./routes/commentRoutes');
 
 
 const app = express();
-const PORT = process.env.PORT|| 4000;
+const PORT = process.env.PORT|| 10000;
 
 app.use(cors({
-    origin: ['https://newsdrop-frontend.vercel.app'],
+    origin: ['https://newsdrop-frontend.vercel.app',
+             'http://localhost:5173',
+             'http://127.0.0.1:5173'
+            ],
     methods: ['GET', 'POST', 'DELETE', 'PUT'],
-    credentials: true
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 
@@ -103,10 +107,12 @@ app.post('/api/subscribers', async (req, res) => {
         return res.status(400).json({ message: 'Email is required' });
     }
     try {
+        // Check if already subscribed
         const existing = await db.query('SELECT email FROM subscribers WHERE email =$1', [email]);
         if (existing.rows.length > 0) {
             return res.status(400).json({ message: 'Email already exists' });
         }
+        // Insert new subscriber
         await db.query('INSERT INTO subscribers (email) VALUES ($1)', [email]);
 
         res.status(201).json({message: 'Successfully subscribed'});
