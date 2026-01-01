@@ -23,22 +23,20 @@ app.use(express.json());
 
 // cron job Schedule
 app.get('/health',async (req, res) => {
+    const clientSecret = req.headers['x-health-secret'];
+
+    if(clientSecret !== process.env.HEALTH_CHECK_SECRET) {
+        return res.status(403).json({ 
+            error: 'Unauthorized'
+        });
+    }
+
     try {
         await pool.query('SELECT 1');
-        res.status(200).json({ 
-            status: 'UP',
-            database: 'Connected',
-            timestamp: new Date().toISOString()
-        });
+        res.status(200).json({ staus: 'UP'});
     } catch (err) {
-        console.error('Health check failed:', err);
-        res.status(500).json({
-            status: 'DOWN',
-            database: 'Disconnected',
-            timestamp: new Date().toISOString()
-        })
+        res.status(500).json({ status: 'DOWN'});
     }
-    
 });
 
 //function to create complex JOIN query
