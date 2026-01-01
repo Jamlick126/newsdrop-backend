@@ -21,6 +21,26 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// cron job Schedule
+app.get('/health',async (req, res) => {
+    try {
+        await pool.query('SELECT 1');
+        res.status(200).json({ 
+            status: 'UP',
+            database: 'Connected',
+            timestamp: new Date().toISOString()
+        });
+    } catch (err) {
+        console.error('Health check failed:', err);
+        res.status(500).json({
+            status: 'DOWN',
+            database: 'Disconnected',
+            timestamp: new Date().toISOString()
+        })
+    }
+    
+});
+
 //function to create complex JOIN query
 const allPostsQuery = `
     SELECT posts.*, users.username AS author_username,
